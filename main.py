@@ -8,13 +8,11 @@ from flask import Flask, jsonify, render_template, request, Response
 from flask_cors import CORS
 #from flask_sock import Sock
 from simple_websocket import Server, ConnectionClosed
-from engineio.client import websocket
 import html_sse
 import json
 import requests
 import queryws
 import threading
-import requests
 
 # instantiate the app
 app = Flask(__name__, static_folder="vue-client/dist/static", template_folder="vue-client/dist", static_url_path="/static")
