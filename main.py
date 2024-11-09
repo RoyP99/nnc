@@ -110,22 +110,26 @@ def apiParameters(parmNr):
             queryWs.setRegistryUrl(settings['registryUrl'])
             startWebsocket()
         if parmNr == 'connectSndRcv':
-            print(cmd)
-            senderHref = nmosInfo['nodes'][nmosInfo['devices'][nmosInfo['senders'][cmd['senderuuid']]['device_id']]['node_id']]['href'] + 'x-nmos/connection/v1.1/'
-            receiverHref = nmosInfo['nodes'][nmosInfo['devices'][nmosInfo['receivers'][cmd['receiveruuid']]['device_id']]['node_id']]['href'] + 'x-nmos/connection/v1.1/'
-            # first get transportfile of the sender (SDP)
-            url = senderHref + 'single/senders/' + cmd['senderuuid'] + '/transportfile'
-            r = requests.get(url)
-            print(r)
-            if r.ok:
-                print(r.content)
-                # now send sdp to receiver
-                req = { 'activation': { 'mode': 'activate_immediate', 'requested_time': None }, 'sender_id': cmd['senderuuid'], 'transport_file': { 'data': r.content.decode('utf-8'), 'type': 'application/sdp'} }
-                url = receiverHref + 'single/receivers/' + cmd['receiveruuid'] + '/staged/'
-                pr = requests.patch(url, json=req)
-                print('patch send')
-                print(req)
-                print(pr)
+            # print('connectSndRcv')
+            # print(cmd)
+            try:
+                senderHref = nmosInfo['nodes'][nmosInfo['devices'][nmosInfo['senders'][cmd['senderuuid']]['device_id']]['node_id']]['href'] + 'x-nmos/connection/v1.1/'
+                receiverHref = nmosInfo['nodes'][nmosInfo['devices'][nmosInfo['receivers'][cmd['receiveruuid']]['device_id']]['node_id']]['href'] + 'x-nmos/connection/v1.1/'
+                # first get transportfile of the sender (SDP)
+                url = senderHref + 'single/senders/' + cmd['senderuuid'] + '/transportfile'
+                r = requests.get(url)
+                # print(r)
+                if r.ok:
+                    # print(r.content)
+                    # now send sdp to receiver
+                    req = { 'activation': { 'mode': 'activate_immediate', 'requested_time': None }, 'sender_id': cmd['senderuuid'], 'transport_file': { 'data': r.content.decode('utf-8'), 'type': 'application/sdp'} }
+                    url = receiverHref + 'single/receivers/' + cmd['receiveruuid'] + '/staged/'
+                    pr = requests.patch(url, json=req)
+                    # print('patch send')
+                    # print(req)
+                    # print(pr)
+            except:
+                Response(status=404)
         return Response(status=200)
     else:
         if parmNr == 'projects':
@@ -150,7 +154,7 @@ def apiParameters(parmNr):
             #htmlSse.announce(htmlSse.format_sse(json.dumps(nmosInfo['devices']), 'devicesInfo'))
             deviceList = []
             nmosInfoLock.acquire()
-            print(nmosInfo['devices'])
+            # print(nmosInfo['devices'])
             for fDevice in nmosInfo['devices']:
                 dInfo = nmosInfo['devices'][fDevice]
                 deviceList.append({'label': dInfo['label'], 'uuid': dInfo['id'], 'description': dInfo['description'], 'type': dInfo['type'] })

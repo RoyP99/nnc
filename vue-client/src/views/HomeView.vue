@@ -26,14 +26,20 @@ onMounted(() => {
   logWindowResize();
 })
 
-watch(devices, (newValue) => {
+function devicesInfoReceived(newDevices)
+{
   console.log('devices verandert');
   recvDeviceList.value = [];
-  for (let device of devices.value) {
-  	//console.log(device.label)
+  sendDeviceList.value = [];
+  for (let device of newDevices) {
+  	// console.log(device)
 	recvDeviceList.value.push({ text: device.label, uuid: device.uuid, description: device.description, type: device.type, active: false });
 	sendDeviceList.value.push({ text: device.label, uuid: device.uuid, description: device.description, type: device.type, active: false });
   }
+};
+
+watch(devices, (newValue) => {
+  devicesInfoReceived(devices.value);
 },
 //{ immediate: true }
 )
@@ -136,6 +142,12 @@ async function connectClick()
     });
   }
 }
+
+var htmlSseSource = new EventSource("/listen")
+htmlSseSource.addEventListener("deviceList", (event) => {
+	const myData = JSON.parse(event.data);
+	devicesInfoReceived(myData);
+});
 
 </script>
 

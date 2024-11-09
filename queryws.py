@@ -42,7 +42,7 @@ class cQueryWs(object):
                 if data != None:
                     try:
                         ddata = json.loads(data)
-                        #print(ddata)
+                        # print(f'Query {ddata}')
                     except:
                         ddata = {}
                     if 'grain_type' in ddata and 'grain' in ddata and ddata['grain_type'] == 'event':
@@ -62,11 +62,13 @@ class cQueryWs(object):
                                             if myItem not in changedItems:
                                                 changedItems.append(myItem)
                                     elif 'pre' in graindata:
-                                        itemInfo = graindata['post']
+                                        itemInfo = graindata['pre']
                                         if 'id' in itemInfo:
                                             itemId = itemInfo['id']
                                             if itemId in self.foundInfo[myItem]:
                                                 self.foundInfo[myItem].pop(itemId)
+                                                if myItem not in changedItems:
+                                                    changedItems.append(myItem)
 
                             self.nmosInfoLock.acquire()
                             for key in self.foundInfo.keys():
@@ -76,8 +78,12 @@ class cQueryWs(object):
                             self.nmosInfoLock.release()
                             
                             if 'devices' in changedItems:
-                                sseStr = self.htmlSse.format_sse(json.dumps(self.foundInfo['devices']), 'deviceList')
-                                #print(sseStr)
+                                deviceList = []
+                                for fDevice in self.foundInfo['devices']:
+                                    dInfo = self.foundInfo['devices'][fDevice]
+                                    deviceList.append({'label': dInfo['label'], 'uuid': dInfo['id'], 'description': dInfo['description'], 'type': dInfo['type'] })
+                                sseStr = self.htmlSse.format_sse(json.dumps(deviceList), 'deviceList')
+                                # sseStr = self.htmlSse.format_sse(json.dumps(self.foundInfo['devices']), 'deviceList')
                                 self.htmlSse.announce(sseStr)
                                 
         except (EOFError, ConnectionClosed):
