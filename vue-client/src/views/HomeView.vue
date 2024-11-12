@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
-import TitleBar from '../components/Titlebar.vue'
+import TitleBar from '@/components/TitleBar.vue'
 import { useDevicesStore } from '@/stores/devices'
 import { storeToRefs } from 'pinia'
   

@@ -1,5 +1,5 @@
 <script setup>
-import TitleBar from '../components/Titlebar.vue'
+import TitleBar from '@/components/TitleBar.vue'
 import { ref, onMounted } from 'vue';
 import { useVuelidate } from '@vuelidate/core';
 import { required, url } from '@vuelidate/validators';
