@@ -13,7 +13,7 @@ COPY requirements.txt .
 ENV PYTHON_PIP_VERSION=24.0
 ENV PYTHON_GET_PIP_URL=https://github.com/pypa/get-pip/raw/dbf0c85f76fb6e1ab42aa672ffca6f0a675d9ee4/public/get-pip.py
 ENV PYTHON_GET_PIP_SHA256=dfe9fd5c28dc98b5ac17979a953ea550cec37ae1b47a5116007395bfacff2ab9
-RUN /bin/sh -c set -eux; wget -O get-pip.py "$PYTHON_GET_PIP_URL"; echo "$PYTHON_GET_PIP_SHA256 *get-pip.py" | sha256sum -c -; export PYTHONDONTWRITEBYTECODE=1; python3 get-pip.py --disable-pip-version-check --no-cache-dir --no-compile "pip==$PYTHON_PIP_VERSION" ; rm -f get-pip.py
+RUN /bin/sh -c set -eux; wget -O get-pip.py "$PYTHON_GET_PIP_URL"; echo "$PYTHON_GET_PIP_SHA256 *get-pip.py" | sha256sum -c -; export PYTHONDONTWRITEBYTECODE=1; python3 get-pip.py --disable-pip-version-check --no-cache-dir --no-compile --break-system-packages "pip==$PYTHON_PIP_VERSION" ; rm -f get-pip.py
 
 # Install the Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt --break-system-packages
