@@ -4,7 +4,7 @@ import { RouterLink } from 'vue-router'
 
 //  <nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
 //	<div class="container-fluid">
-//	    <a class="navbar-brand" href="/">NCC</a>
+//	    <a class="navbar-brand" href="/">NNC</a>
 //	    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
 //	      <span class="navbar-toggler-icon"></span>
 //	    </button>
@@ -21,14 +21,14 @@ import { RouterLink } from 'vue-router'
 //	    </div>
 //	</div>
 //  </nav>
-//  <v-toolbar title="NCC" color="teal-lighten-4">
+//  <v-toolbar title="NNC" color="teal-lighten-4">
 //  </v-toolbar>
 </script>
 
 <template>
   <nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
 	<div class="container-fluid">
-	    <a class="navbar-brand" href="/">NCC</a>
+	    <a class="navbar-brand" href="/">NNC</a>
 	    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
 	      <span class="navbar-toggler-icon"></span>
 	    </button>

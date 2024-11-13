@@ -13,7 +13,7 @@ const state = ref({
  });
  
 const rules = {
-   registryUrl: { required, url }
+   registryUrl: { required }
 }
 
 const validation = useVuelidate(rules, state);
@@ -25,7 +25,7 @@ onMounted(() => {
 
 function getSettings() 
 {
-	const path = 'http://localhost:5000/parameters/settings';
+	const path = 'parameters/settings';
     axios.get(path)
     	.then((res) => {
 			//console.log(res.data);
@@ -38,7 +38,7 @@ function getSettings()
 
 function postSettings() 
 {
-  	const path = 'http://localhost:5000/parameters/settings';
+  	const path = 'parameters/settings';
 	let postValue = { 'registryUrl': state.value.registryUrl 
 					}
   	axios.post(path, postValue)

@@ -24,6 +24,7 @@ onMounted(() => {
 //	socket.send('hallo');
 //	console.log(socket);
   logWindowResize();
+  devicesInfoReceived(devices.value);
 })
 
 function devicesInfoReceived(newDevices)
