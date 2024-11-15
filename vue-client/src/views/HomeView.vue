@@ -3,7 +3,7 @@ import { ref, onMounted, watch } from 'vue'
 import TitleBar from '@/components/TitleBar.vue'
 import { useDevicesStore } from '@/stores/devices'
 import { storeToRefs } from 'pinia'
-  
+
 const loopCount = ref(1);
 
 const deviceStore = useDevicesStore();
@@ -18,7 +18,7 @@ const { devices } = storeToRefs(deviceStore);
 //   socket.send('hallo2');
 //   });
 // console.log(socket);
-      
+
 
 onMounted(() => {
 //	socket.send('hallo');
@@ -65,7 +65,13 @@ function logWindowResize()
     var topList = dList.offsetTop;
 	var hList = window.innerHeight - topList - 10;
 	var list1 = document.getElementById("idRecvDeviceList");
+	var list2 = document.getElementById("idReceiverList");
+	var list3 = document.getElementById("idSendDeviceList");
+	var list4 = document.getElementById("idSenderList");
 	list1.style.height = hList.toString()+"px";
+	list2.style.height = hList.toString()+"px";
+	list3.style.height = hList.toString()+"px";
+	list4.style.height = hList.toString()+"px";
 }
 // add listener for resize
 window.onresize = logWindowResize;
@@ -189,7 +195,7 @@ htmlSseSource.addEventListener("deviceList", (event) => {
   <div id="itemsList">
     <div class="row mt-3 ms-3 me-3">
       <div class="container rounded col-2 text-center">
-        <ul id="idRecvDeviceList" class="list-group overflow-auto">
+        <ul id="idRecvDeviceList" class="list-group overflow-y-auto overflow-x-hidden">
           <template v-for="item in recvDeviceList">
   		    <Popper hover arrow placement="right" openDelay="500" closeDelay="100">
               <li class="list-group-item list-group-item-action" role="button" @click="recvDeviceClick(item)" :class="{ active: item.active }">
@@ -205,7 +211,7 @@ htmlSseSource.addEventListener("deviceList", (event) => {
       <div class="col-1">
       </div>
       <div class="container rounded col-2 text-center">
-        <ul id="idReceiverList" class="list-group overflow-auto">
+        <ul id="idReceiverList" class="list-group overflow-y-auto overflow-x-hidden">
           <template v-for="item in receiverList">
   		    <Popper hover arrow placement="left" openDelay="500" closeDelay="100">
               <li class="list-group-item list-group-item-action" role="button" @click="receiverClick(item)" :class="{ active: item.active }">
@@ -228,7 +234,7 @@ htmlSseSource.addEventListener("deviceList", (event) => {
       <div class="col-2 text-center">
       </div>
       <div class="container rounded col-2 text-center">
-        <ul id="idSendDeviceList" class="list-group overflow-auto">
+        <ul id="idSendDeviceList" class="list-group overflow-y-auto overflow-x-hidden">
           <template v-for="item in sendDeviceList">
   		    <Popper hover arrow placement="right" openDelay="500" closeDelay="100">
               <li class="list-group-item list-group-item-action" role="button" @click="sendDeviceClick(item)" :class="{ active: item.active }">
@@ -249,7 +255,7 @@ htmlSseSource.addEventListener("deviceList", (event) => {
       <div class="col-1">
       </div>
       <div class="container rounded col-2 text-center">
-        <ul id="idSenderList" class="list-group overflow-auto">
+        <ul id="idSenderList" class="list-group overflow-y-auto overflow-x-hidden">
           <template v-for="item in senderList">
   		    <Popper hover arrow placement="left" openDelay="500" closeDelay="100">
               <li class="list-group-item list-group-item-action" role="button" @click="senderClick(item)" :class="{ active: item.active }">
