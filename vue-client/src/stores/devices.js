@@ -5,7 +5,7 @@ import axios from 'axios';
 export const useDevicesStore = defineStore('devices', () => {
 	const devices = ref([]);
 	function getDevices() {
-		const path = 'http://localhost:5000/parameters/devices';
+		const path = 'parameters/devices';
 	    axios.get(path)
 	    	.then((res) => {
 				devices.value = [];
