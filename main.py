@@ -122,7 +122,7 @@ def apiParameters(parmNr):
                 if r.ok:
                     # print(r.content)
                     # now send sdp to receiver
-                    req = { 'activation': { 'mode': 'activate_immediate', 'requested_time': None }, 'sender_id': cmd['senderuuid'], 'transport_file': { 'data': r.content.decode('utf-8'), 'type': 'application/sdp'} }
+                    req = { 'activation': { 'mode': 'activate_immediate', 'requested_time': None }, 'master_enable': True, 'sender_id': cmd['senderuuid'], 'transport_file': { 'data': r.content.decode('utf-8'), 'type': 'application/sdp'} }
                     url = receiverHref + 'single/receivers/' + cmd['receiveruuid'] + '/staged/'
                     pr = requests.patch(url, json=req)
                     # print('patch send')
