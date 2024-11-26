@@ -118,7 +118,7 @@ def apiParameters(parmNr):
                 # first get transportfile of the sender (SDP)
                 url = senderHref + 'single/senders/' + cmd['senderuuid'] + '/transportfile'
                 r = requests.get(url)
-                # print(r)
+                #print(r)
                 if r.ok:
                     # print(r.content)
                     # now send sdp to receiver
@@ -128,8 +128,10 @@ def apiParameters(parmNr):
                     # print('patch send')
                     # print(req)
                     # print(pr)
+                else:
+                    return Response(status=404)
             except:
-                Response(status=404)
+                return Response(status=404)
         return Response(status=200)
     else:
         if parmNr == 'projects':
@@ -165,7 +167,7 @@ def apiParameters(parmNr):
             return jsonify(settings)
         if parmNr == 'getDeviceReceivers':
             uuid = request.args.get('uuid')
-            print(uuid)            
+            #print(uuid)            
             if uuid in nmosInfo['devices']:
                 recvList = []
                 rDevice = nmosInfo['devices'][uuid]
@@ -177,7 +179,7 @@ def apiParameters(parmNr):
             return jsonify(recvList)
         if parmNr == 'getDeviceSenders':
             uuid = request.args.get('uuid')
-            print(uuid)            
+            #print(uuid)            
             if uuid in nmosInfo['devices']:
                 senderList = []
                 sDevice = nmosInfo['devices'][uuid]
@@ -187,6 +189,17 @@ def apiParameters(parmNr):
                         #senderList.append({'label': sender['label'], 'uuid': sender['id'] })
                         senderList.append(sender)
             return jsonify(senderList)
+        if parmNr == 'getSenderJson':
+            try:
+                senderuuid = request.args.get('senderuuid')
+                senderHref = nmosInfo['nodes'][nmosInfo['devices'][nmosInfo['senders'][senderuuid]['device_id']]['node_id']]['href'] + 'x-nmos/connection/v1.1/'
+                # first get transportfile of the sender (SDP)
+                url = senderHref + 'single/senders/' + senderuuid + '/transportfile'
+                r = requests.get(url)
+                if r.ok:
+                    return jsonify({'sdp': r.content.decode('utf-8'), 'uuid': senderuuid } )
+            except:
+                return "Sender not found", 400
         return "Record not found", 400
 
 @app.route('/incpost', methods=['POST'])

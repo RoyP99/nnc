@@ -3,26 +3,16 @@ import { ref, onMounted, watch } from 'vue'
 import TitleBar from '@/components/TitleBar.vue'
 import { useDevicesStore } from '@/stores/devices'
 import { storeToRefs } from 'pinia'
+import ContextMenu from '@imengyu/vue3-context-menu';
+import Modal from '@/components/Modal.vue';
 
 const loopCount = ref(1);
+const sdp = ref('');
 
 const deviceStore = useDevicesStore();
 const { devices } = storeToRefs(deviceStore);
 
-// const socket = new WebSocket('ws://' + location.host + '/echo');
-// socket.addEventListener('message', ev => {
-//     console.log('<<< ' + ev.data, 'blue');
-// });
-// socket.addEventListener("open", (ev) => {
-//   socket.send('hallo');
-//   socket.send('hallo2');
-//   });
-// console.log(socket);
-
-
 onMounted(() => {
-//	socket.send('hallo');
-//	console.log(socket);
   logWindowResize();
   devicesInfoReceived(devices.value);
 })
@@ -142,11 +132,25 @@ async function connectClick()
 {
   if (receiverUuid.value.length != 0 && senderUuid.value.length != 0)
   {
+    const el = document.getElementById("connectButton");
+    el.classList.remove('btn-outline-primary');
+    el.classList.add('btn-warning');
     const response = await fetch('parameters/connectSndRcv', {
       method: "POST",
       body: JSON.stringify({receiveruuid: receiverUuid.value, senderuuid: senderUuid.value}),
       headers: {"Content-Type": "application/json"}
     });
+    el.classList.remove('btn-warning');
+    if (!response.ok)
+    {
+	    el.classList.add('btn-danger');
+		setTimeout(function(){el.classList.remove('btn-danger'); el.classList.add('btn-outline-primary');},2000);
+	}
+    else
+    {
+	    el.classList.add('btn-success');
+		setTimeout(function(){el.classList.remove('btn-success'); el.classList.add('btn-outline-primary');},2000);
+    }
   }
 }
 
@@ -156,6 +160,36 @@ htmlSseSource.addEventListener("deviceList", (event) => {
 	devicesInfoReceived(myData);
 });
 
+const closeableModal = ref(false);
+
+ const onSenderContextMenu = (e, item) => {
+    //prevent the browser's default menu
+    e.preventDefault();
+    //show our menu
+    ContextMenu.showContextMenu({
+      x: e.x,
+      y: e.y,
+      items: [
+        { 
+          label: "Show SDP", 
+          onClick: async () => {
+			const response = await fetch('parameters/getSenderJson?' + new URLSearchParams({senderuuid: item.uuid}));
+			if (response.ok)
+			{
+			  const myJson = await response.json(); //extract JSON from the http response
+			  console.log(myJson);
+			  sdp.value = myJson.sdp.replace(/(\r\n|\r|\n)/g, '<br>');
+			  closeableModal.value = true;
+			}
+			else
+			{
+			  alert('no response in retreiving SDP');
+			}
+          }
+        },
+      ]
+    });
+  }
 </script>
 
 <template>
@@ -181,7 +215,7 @@ htmlSseSource.addEventListener("deviceList", (event) => {
       Receiver
     </div>
     <div class="col-2 text-center">
-      <button type="button" class="btn btn-outline-primary btn-sm" :disabled="receiverUuid.length == 0 || senderUuid.length == 0" @click="connectClick">Connect</button>
+      <button type="button" id="connectButton" class="btn btn-outline-primary btn-sm" :disabled="receiverUuid.length == 0 || senderUuid.length == 0" @click="connectClick">Connect</button>
     </div>
     <div class="container rounded col-2 text-center" style="background-color: #e3f2fd;">
       Device
@@ -258,7 +292,8 @@ htmlSseSource.addEventListener("deviceList", (event) => {
         <ul id="idSenderList" class="list-group overflow-y-auto overflow-x-hidden">
           <template v-for="item in senderList">
   		    <Popper hover arrow placement="left" openDelay="500" closeDelay="100">
-              <li class="list-group-item list-group-item-action" role="button" @click="senderClick(item)" :class="{ active: item.active }">
+              <!-- <li class="list-group-item list-group-item-action" role="button" @click="senderClick(item)" :class="{ active: item.active }" @contextmenu.prevent="showSenderContextMenu($event, item)"> -->
+              <li class="list-group-item list-group-item-action" role="button" @click="senderClick(item)" :class="{ active: item.active }" @contextmenu="onSenderContextMenu($event, item)">
                 {{ item.text }}
               </li>
               <template #content>
@@ -277,6 +312,12 @@ htmlSseSource.addEventListener("deviceList", (event) => {
     </div>  
   </div>
   
+  <!-- Modal SDP -->
+  <Modal v-model="closeableModal" closeable header="SDP">
+  <span v-html="sdp" />
+  <!--{{ sdp }}-->
+  </Modal>
+	
 </template>
 
 <style scoped>
@@ -306,4 +347,25 @@ htmlSseSource.addEventListener("deviceList", (event) => {
   :deep(.popper:hover > #arrow::before) {
     background: #e92791;
   }
+  
+/*	.overlay {
+	  position: fixed;
+	  top: 0;
+	  left: 0;
+	  width: 100%;
+	  height: 100%;
+	  background: transparent;
+	  z-index: 49;
+	}
+	
+	.overlay::before {
+	  content: '';
+	  position: absolute;
+	  width: 100%;
+	  height: 100%;
+	}
+	
+	.overlay:hover {
+	  cursor: pointer;
+	} */  
   </style>
