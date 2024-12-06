@@ -189,7 +189,7 @@ def apiParameters(parmNr):
                         #senderList.append({'label': sender['label'], 'uuid': sender['id'] })
                         senderList.append(sender)
             return jsonify(senderList)
-        if parmNr == 'getSenderJson':
+        if parmNr == 'getSenderSDP':
             try:
                 senderuuid = request.args.get('senderuuid')
                 senderHref = nmosInfo['nodes'][nmosInfo['devices'][nmosInfo['senders'][senderuuid]['device_id']]['node_id']]['href'] + 'x-nmos/connection/v1.1/'
@@ -200,6 +200,53 @@ def apiParameters(parmNr):
                     return jsonify({'sdp': r.content.decode('utf-8'), 'uuid': senderuuid } )
             except:
                 return "Sender not found", 400
+        if parmNr == 'getSenderJson':
+            try:
+                senderuuid = request.args.get('senderuuid')
+                sender = nmosInfo['senders'][senderuuid]
+                return jsonify({'sender': sender } )
+            except:
+                return "Sender not found", 400
+        if parmNr == 'getReceiverJson':
+            try:
+                receiveruuid = request.args.get('receiveruuid')
+                receiver = nmosInfo['receivers'][receiveruuid]
+                return jsonify({'receiver': receiver } )
+            except:
+                return "receiver not found", 400
+        if parmNr == 'getSenderSourceJson':
+            try:
+                senderuuid = request.args.get('senderuuid')
+                flowuuid = nmosInfo['senders'][senderuuid]['flow_id']
+                flow = nmosInfo['flows'][flowuuid]
+                sourceuuid = nmosInfo['flows'][flowuuid]['source_id']
+                source = nmosInfo['sources'][sourceuuid]
+                return jsonify({'source': source } )
+            except:
+                return "Source not found", 400
+        if parmNr == 'getSenderFlowJson':
+            try:
+                senderuuid = request.args.get('senderuuid')
+                flowuuid = nmosInfo['senders'][senderuuid]['flow_id']
+                flow = nmosInfo['flows'][flowuuid]
+                return jsonify({'flow': flow } )
+            except:
+                return "Flow not found", 400
+        if parmNr == 'getDeviceJson':
+            try:
+                deviceuuid = request.args.get('deviceuuid')
+                device = nmosInfo['devices'][deviceuuid]
+                return jsonify({'device': device } )
+            except:
+                return "Device not found", 400
+        if parmNr == 'getDeviceNodeJson':
+            try:
+                deviceuuid = request.args.get('deviceuuid')
+                nodeuuid = nmosInfo['devices'][deviceuuid]['node_id']
+                node = nmosInfo['nodes'][nodeuuid]
+                return jsonify({'node': node } )
+            except:
+                return "Node not found", 400
         return "Record not found", 400
 
 @app.route('/incpost', methods=['POST'])

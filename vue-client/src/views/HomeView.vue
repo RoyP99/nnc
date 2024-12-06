@@ -7,7 +7,6 @@ import ContextMenu from '@imengyu/vue3-context-menu';
 import Modal from '@/components/Modal.vue';
 
 const loopCount = ref(1);
-const sdp = ref('');
 
 const deviceStore = useDevicesStore();
 const { devices } = storeToRefs(deviceStore);
@@ -160,7 +159,14 @@ htmlSseSource.addEventListener("deviceList", (event) => {
 	devicesInfoReceived(myData);
 });
 
-const closeableModal = ref(false);
+const modalText = ref('');
+const closeableModalShowSdp = ref(false);
+const closeableModalShowSender = ref(false);
+const closeableModalShowSource = ref(false);
+const closeableModalShowFlow = ref(false);
+const closeableModalShowReceiver = ref(false);
+const closeableModalShowDevice = ref(false);
+const closeableModalShowNode = ref(false);
 
  const onSenderContextMenu = (e, item) => {
     //prevent the browser's default menu
@@ -171,19 +177,159 @@ const closeableModal = ref(false);
       y: e.y,
       items: [
         { 
+          label: "Copy Id",
+          divided: true, 
+          onClick: () => {
+          	navigator.clipboard.writeText(item.uuid);
+          }
+        },
+        {
           label: "Show SDP", 
+          onClick: async () => {
+			const response = await fetch('parameters/getSenderSDP?' + new URLSearchParams({senderuuid: item.uuid}));
+			if (response.ok)
+			{
+			  const myJson = await response.json(); //extract JSON from the http response
+			  modalText.value = myJson.sdp.replace(/(\r\n|\r|\n)/g, '<br>');
+			  closeableModalShowSdp.value = true;
+			}
+			else
+			{
+			  alert('no response in retreiving SDP');
+			}
+          }
+        },
+        { 
+          label: "Show Sender", 
           onClick: async () => {
 			const response = await fetch('parameters/getSenderJson?' + new URLSearchParams({senderuuid: item.uuid}));
 			if (response.ok)
 			{
 			  const myJson = await response.json(); //extract JSON from the http response
-			  console.log(myJson);
-			  sdp.value = myJson.sdp.replace(/(\r\n|\r|\n)/g, '<br>');
-			  closeableModal.value = true;
+			  modalText.value = JSON.stringify(myJson.sender, null, " ");
+			  closeableModalShowSender.value = true;
 			}
 			else
 			{
-			  alert('no response in retreiving SDP');
+			  alert('no response in retreiving Sender');
+			}
+          }
+        },
+        { 
+          label: "Show Source", 
+          onClick: async () => {
+			const response = await fetch('parameters/getSenderSourceJson?' + new URLSearchParams({senderuuid: item.uuid}));
+			if (response.ok)
+			{
+			  const myJson = await response.json(); //extract JSON from the http response
+			  modalText.value = JSON.stringify(myJson.source, null, " ");
+			  closeableModalShowSource.value = true;
+			}
+			else
+			{
+			  alert('no response in retreiving Source');
+			}
+          }
+        },
+        { 
+          label: "Show Flow", 
+          onClick: async () => {
+			const response = await fetch('parameters/getSenderFlowJson?' + new URLSearchParams({senderuuid: item.uuid}));
+			if (response.ok)
+			{
+			  const myJson = await response.json(); //extract JSON from the http response
+			  modalText.value = JSON.stringify(myJson.flow, null, " ");
+			  closeableModalShowFlow.value = true;
+			}
+			else
+			{
+			  alert('no response in retreiving Flow');
+			}
+          }
+        },
+      ]
+    });
+ }
+  
+ const onReceiverContextMenu = (e, item) => {
+    //prevent the browser's default menu
+    e.preventDefault();
+    //show our menu
+    ContextMenu.showContextMenu({
+      x: e.x,
+      y: e.y,
+      items: [
+        { 
+          label: "Copy Id",
+          divided: true, 
+          onClick: () => {
+          	navigator.clipboard.writeText(item.uuid);
+          }
+        },
+        { 
+          label: "Show Receiver", 
+          onClick: async () => {
+			const response = await fetch('parameters/getReceiverJson?' + new URLSearchParams({receiveruuid: item.uuid}));
+			if (response.ok)
+			{
+			  const myJson = await response.json(); //extract JSON from the http response
+			  modalText.value = JSON.stringify(myJson.receiver, null, " ");
+			  closeableModalShowReceiver.value = true;
+			}
+			else
+			{
+			  alert('no response in retreiving Receiver');
+			}
+          }
+        },
+      ]
+    });
+  }
+
+ const onDeviceContextMenu = (e, item) => {
+    //prevent the browser's default menu
+    e.preventDefault();
+    //show our menu
+    ContextMenu.showContextMenu({
+      x: e.x,
+      y: e.y,
+      items: [
+        { 
+          label: "Copy Id",
+          divided: true, 
+          onClick: () => {
+          	navigator.clipboard.writeText(item.uuid);
+          }
+        },
+        { 
+          label: "Show Device", 
+          onClick: async () => {
+			const response = await fetch('parameters/getDeviceJson?' + new URLSearchParams({deviceuuid: item.uuid}));
+			if (response.ok)
+			{
+			  const myJson = await response.json(); //extract JSON from the http response
+			  modalText.value = JSON.stringify(myJson.device, null, " ");
+			  closeableModalShowDevice.value = true;
+			}
+			else
+			{
+			  alert('no response in retreiving Device');
+			}
+          }
+        },
+        { 
+          label: "Show Node", 
+          onClick: async () => {
+			const response = await fetch('parameters/getDeviceNodeJson?' + new URLSearchParams({deviceuuid: item.uuid}));
+			if (response.ok)
+			{
+			  const myJson = await response.json(); //extract JSON from the http response
+			  modalText.value = JSON.stringify(myJson.node, null, " ");
+			  closeableModalShowNode.value = true;
+			}
+			else
+			{
+			  alert('no response in retreiving Node');
 			}
           }
         },
@@ -232,7 +378,7 @@ const closeableModal = ref(false);
         <ul id="idRecvDeviceList" class="list-group overflow-y-auto overflow-x-hidden">
           <template v-for="item in recvDeviceList">
   		    <Popper hover arrow placement="right" openDelay="500" closeDelay="100">
-              <li class="list-group-item list-group-item-action" role="button" @click="recvDeviceClick(item)" :class="{ active: item.active }">
+              <li class="list-group-item list-group-item-action" role="button" @click="recvDeviceClick(item)" :class="{ active: item.active }" @contextmenu="onDeviceContextMenu($event, item)">
                 {{ item.text }}
               </li>
               <template #content>
@@ -248,7 +394,7 @@ const closeableModal = ref(false);
         <ul id="idReceiverList" class="list-group overflow-y-auto overflow-x-hidden">
           <template v-for="item in receiverList">
   		    <Popper hover arrow placement="left" openDelay="500" closeDelay="100">
-              <li class="list-group-item list-group-item-action" role="button" @click="receiverClick(item)" :class="{ active: item.active }">
+              <li class="list-group-item list-group-item-action" role="button" @click="receiverClick(item)" :class="{ active: item.active }" @contextmenu="onReceiverContextMenu($event, item)">
                 {{ item.text }}
               </li>
               <template #content>
@@ -271,7 +417,7 @@ const closeableModal = ref(false);
         <ul id="idSendDeviceList" class="list-group overflow-y-auto overflow-x-hidden">
           <template v-for="item in sendDeviceList">
   		    <Popper hover arrow placement="right" openDelay="500" closeDelay="100">
-              <li class="list-group-item list-group-item-action" role="button" @click="sendDeviceClick(item)" :class="{ active: item.active }">
+              <li class="list-group-item list-group-item-action" role="button" @click="sendDeviceClick(item)" :class="{ active: item.active }" @contextmenu="onDeviceContextMenu($event, item)">
                 {{ item.text }}
               </li>
               <template #content>
@@ -313,9 +459,38 @@ const closeableModal = ref(false);
   </div>
   
   <!-- Modal SDP -->
-  <Modal v-model="closeableModal" closeable header="SDP">
-  <span v-html="sdp" />
-  <!--{{ sdp }}-->
+  <Modal v-model="closeableModalShowSdp" closeable header="SDP">
+   <pre v-html="modalText" />
+  </Modal>
+	
+  <!-- Modal Sender -->
+  <Modal v-model="closeableModalShowSender" closeable header="Sender JSON">
+   <pre v-html="modalText" />
+  </Modal>
+	
+  <!-- Modal Source -->
+  <Modal v-model="closeableModalShowSource" closeable header="Source JSON">
+   <pre v-html="modalText" />
+  </Modal>
+	
+  <!-- Modal Flow -->
+  <Modal v-model="closeableModalShowFlow" closeable header="Flow JSON">
+   <pre v-html="modalText" />
+  </Modal>
+	
+  <!-- Modal Receiver -->
+  <Modal v-model="closeableModalShowReceiver" closeable header="Receiver JSON">
+   <pre v-html="modalText" />
+  </Modal>
+	
+  <!-- Modal Device -->
+  <Modal v-model="closeableModalShowDevice" closeable header="Device JSON">
+   <pre v-html="modalText" />
+  </Modal>
+	
+  <!-- Modal Node -->
+  <Modal v-model="closeableModalShowNode" closeable header="Node JSON">
+   <pre v-html="modalText" />
   </Modal>
 	
 </template>
