@@ -13,6 +13,7 @@ import json
 import requests
 import queryws
 import threading
+import os, sys
 
 # instantiate the app
 app = Flask(__name__, static_folder="vue-client/dist/static", template_folder="vue-client/dist", static_url_path="/static")
@@ -44,15 +45,21 @@ parameters = {
     'settings': { 'registryUrl': '' }
 }
 
+basePath = ''
+if sys.platform == 'linux':
+    basePath = '/var/lib/nnc/'
+    if not os.path.exists(basePath):
+        basePath = ''
+    
 settings = { 'registryUrl': '' }
 
 def saveSettings():
-    with open('settings.json', 'w', encoding='utf-8') as f:
+    with open(basePath + 'settings.json', 'w', encoding='utf-8') as f:
         json.dump(settings, f, ensure_ascii=False, indent=4)
 
 def loadSettings():
     global settings
-    with open('settings.json') as f:
+    with open(basePath + 'settings.json') as f:
         settings = json.load(f)
     queryWs.setRegistryUrl(settings['registryUrl'])
 
